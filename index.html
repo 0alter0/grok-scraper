@@ -1,89 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>GPT Seeker</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <title>Grok Seeker</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta property="og:title" content="Grok Seeker" />
-  <meta property="og:description" content="Seek any shared Grok message or conversation." />
-  <meta property="og:url" content="NA" />
+  <meta property="og:description" content="Search Grok-related content safely." />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="https://preview.redd.it/say-what-you-want-about-grok-but-theyve-nailed-the-logo-v0-kuwycuuzjsoe1.jpeg?auto=webp&s=70a12c7235af848c43943ffbcbe007f123dde19b" />
-
-  <script async src="https://cse.google.com/cse?cx=35b75e2311fd44b19"></script>
-
   <style>
     :root {
-      --gt-green: #10a37f;
+      --gpt-green: #E67C73;
       --bg-dark: #0d0d0d;
       --text-light: #e0e0e0;
       --input-bg: #1a1a1a;
       --border: #2a2a2a;
     }
-
     body {
-      background-color: var(--bg-dark);
+      background: var(--bg-dark);
       color: var(--text-light);
-      font-family: 'Inter', 'Segoe UI', sans-serif;
+      font-family: Inter, "Segoe UI", system-ui, sans-serif;
       padding: 60px 20px;
       margin: 0;
       text-align: center;
     }
-
     h1 {
-      font-size: 2.5em;
+      font-size: 2.3rem;
       color: var(--gpt-green);
-      font-weight: 500;
       margin-bottom: 30px;
+      font-weight: 500;
     }
-
-    .gcse-search {
+    #cse {
       max-width: 720px;
       margin: 0 auto;
+      text-align: left; 
     }
-
-    input.gsc-input {
-      background-color: var(--input-bg) !important;
+    .gsc-input {
+      background: var(--input-bg) !important;
       color: var(--text-light) !important;
       border: 1px solid var(--border) !important;
       border-radius: 6px !important;
       padding: 8px !important;
-      font-size: 1em !important;
+      font-size: 1rem !important;
     }
-
-    input.gsc-input:focus {
+    .gsc-input:focus {
       outline: none !important;
       border-color: var(--gpt-green) !important;
+      box-shadow: 0 0 0 3px rgba(16,163,127,0.08);
     }
-
-    @media (max-width: 600px) {
-      h1 {
-        font-size: 2em;
-      }
+    @media (max-width:600px) {
+      h1 { font-size: 1.8rem; }
     }
   </style>
 </head>
 <body>
   <h1>Grok Seeker</h1>
-  <div class="gcse-search"></div>
-
-<script>
-  const LOGGING_URL = "https://script.google.com/macros/s/AKfycbzskMDv6ovtX24ic3oPsajlg7TaDO7UYuOeB0bZI-jP3PtcYop1hxiq3xXfSsFa4BIu6A/exec";
-
-  const observer = new MutationObserver(() => {
-    document.querySelectorAll('a[href^="https://grok.com/share/"]').forEach(link => {
-      const url = link.href;
-      if (!link.dataset.logged && /^https:\/\/grok\.com\/share\/[a-zA-Z0-9\-]+$/.test(url)) {
-        link.dataset.logged = "true";
-
-        fetch(LOGGING_URL + "?url=" + encodeURIComponent(url) + "&title=" + encodeURIComponent(link.textContent || url), {
-          mode: 'no-cors'
-        }).catch(err => console.error("Logging failed:", err));
+  <div id="cse"></div>
+  <script>
+    const CSE_CX = "35b75e2311fd44b19";
+    
+    const LOGGING_URL = "https://script.google.com/macros/s/AKfycbzqjJU0rQLo3h3Uh7B7IlxW6-N07jVDnSQGAA-ejD6zVdIAIuhl7C3n_28ZIU-Evq7jfg/exec";
+    
+    window.__gcse = {
+      parsetags: 'explicit',
+      callback: function() {
+        try {
+          if (window.google && google.search && google.search.cse && google.search.cse.element) {
+            google.search.cse.element.render({
+              div: "cse",
+              tag: "search"
+            });
+            enhanceStyling();
+            startLinkObserver();
+          } else {
+            console.warn("CSE script loaded but render API missing.");
+          }
+        } catch (err) {
+          console.error("CSE render failed:", err);
+        }
       }
-    });
-  });
+    };
+    
+    (function loadCSE() {
+      const s = document.createElement('script');
+      s.src = "https://cse.google.com/cse.js?cx=" + encodeURIComponent(CSE_CX);
+      s.async = true;
+      s.defer = true;
+      s.onload = function() {
+        console.log("CSE script loaded successfully");
+      };
+      s.onerror = function(e) {
+        console.error("Failed to load Google CSE script. This may be due to browser restrictions or CSE configuration.", e);
+        document.getElementById('cse').innerHTML = '<p style="color: #e74c3c; padding: 20px; background: var(--input-bg); border-radius: 6px;">Error loading search engine. Please try opening this page in a separate browser tab or check your CSE configuration.</p>';
+      };
+      document.head.appendChild(s);
+    })();
+    
+    function enhanceStyling() {
+      const tryApply = () => {
+        const input = document.querySelector('.gsc-input');
+        if (input) {
+          input.setAttribute('placeholder', 'Search Grok or public sites…');
+        } else {
+          retryCount++;
+          if (retryCount < 10) setTimeout(tryApply, 250);
+        }
+      };
+      let retryCount = 0;
+      tryApply();
+    }
+    
+    function startLinkObserver() {
+      console.log("Link observer started");
+      console.log("Logging endpoint:", LOGGING_URL);
+      
+      const processLinks = () => {
+        const links = document.querySelectorAll('a[href*="grok.com/share/"]');
+        console.log("Found links:", links.length);
+        
+        links.forEach(link => {
+          const url = link.href;
+          console.log("Checking link:", url);
+          
+          if (!link.dataset.logged && /^https:\/\/grok\.com\/share\/[a-zA-Z0-9\-_]+$/.test(url)) {
+            link.dataset.logged = "true";
+            
+            const title = link.textContent.trim() || link.innerText.trim() || url;
+            
+            const logUrl = LOGGING_URL + "?url=" + encodeURIComponent(url) + "&title=" + encodeURIComponent(title);
+            
+            console.log("✓ VALID Grok link found:", url);
+            console.log("📤 Sending request to:", logUrl);
+            
+            const img = new Image();
+            img.onload = () => console.log("Image request completed");
+            img.onerror = () => console.log("Image request sent (expected CORS error)");
+            img.src = logUrl;
+            
+            fetch(logUrl, {
+              method: 'GET',
+              mode: 'no-cors',
+              cache: 'no-cache'
+            }).then(() => {
+              console.log("✅ Fetch request sent");
+            }).catch(err => {
+              console.error("❌ Fetch error:", err);
+            });
+            
+            try {
+              const xhr = new XMLHttpRequest();
+              xhr.open('GET', logUrl, true);
+              xhr.send();
+              console.log("✅ XHR request sent");
+            } catch (err) {
+              console.error("❌ XHR error:", err);
+            }
+            
+          } else if (link.dataset.logged) {
+            console.log("⏭️ Already logged:", url);
+          } else {
+            console.log("❌ Invalid format:", url);
+          }
+        });
+      };
+      
+      setTimeout(processLinks, 1000);
+      
+      const observer = new MutationObserver(() => {
+        processLinks();
+      });
 
-  observer.observe(document.body, { childList: true, subtree: true });
-</script>
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+      
+      setInterval(processLinks, 3000);
+    }
+  </script>
 </body>
 </html>
