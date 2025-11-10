@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GPT Seeker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta property="og:title" content="Grok Seeker" />
+  <meta property="og:description" content="Seek any shared Grok message or conversation." />
+  <meta property="og:url" content="NA" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://preview.redd.it/say-what-you-want-about-grok-but-theyve-nailed-the-logo-v0-kuwycuuzjsoe1.jpeg?auto=webp&s=70a12c7235af848c43943ffbcbe007f123dde19b" />
+
+  <script async src="https://cse.google.com/cse?cx=35b75e2311fd44b19"></script>
+
+  <style>
+    :root {
+      --gt-green: #10a37f;
+      --bg-dark: #0d0d0d;
+      --text-light: #e0e0e0;
+      --input-bg: #1a1a1a;
+      --border: #2a2a2a;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      padding: 60px 20px;
+      margin: 0;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      color: var(--gpt-green);
+      font-weight: 500;
+      margin-bottom: 30px;
+    }
+
+    .gcse-search {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    input.gsc-input {
+      background-color: var(--input-bg) !important;
+      color: var(--text-light) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 6px !important;
+      padding: 8px !important;
+      font-size: 1em !important;
+    }
+
+    input.gsc-input:focus {
+      outline: none !important;
+      border-color: var(--gpt-green) !important;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 2em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Grok Seeker</h1>
+  <div class="gcse-search"></div>
+
+<script>
+  const LOGGING_URL = "https://script.google.com/macros/s/AKfycbzskMDv6ovtX24ic3oPsajlg7TaDO7UYuOeB0bZI-jP3PtcYop1hxiq3xXfSsFa4BIu6A/exec";
+
+  const observer = new MutationObserver(() => {
+    document.querySelectorAll('a[href^="https://grok.com/share/"]').forEach(link => {
+      const url = link.href;
+      if (!link.dataset.logged && /^https:\/\/grok\.com\/share\/[a-zA-Z0-9\-]+$/.test(url)) {
+        link.dataset.logged = "true";
+
+        fetch(LOGGING_URL + "?url=" + encodeURIComponent(url) + "&title=" + encodeURIComponent(link.textContent || url), {
+          mode: 'no-cors'
+        }).catch(err => console.error("Logging failed:", err));
+      }
+    });
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+</script>
+</body>
+</html>
